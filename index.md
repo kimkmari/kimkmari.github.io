@@ -1,5 +1,5 @@
 ---
-title: Home
+title: Kimkm's Tech blog
 layout: home
 ---
 
