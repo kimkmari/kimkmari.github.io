@@ -2,7 +2,9 @@
 layout: default
 ---
 
-{{ content }}
+<!-- Page Header Image -->
+<header>
+    <img src="{{ page.background | prepend: site.baseurl }}" alt="Header Image" style="width: 100%;">
+</header>
 
-<!-- Page Header -->
-{% if page.background %}
+{{ content }}
