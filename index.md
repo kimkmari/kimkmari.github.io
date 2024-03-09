@@ -1,35 +1,26 @@
 ---
-title: Kimkm's Tech blog
+title: Kimkm's Tech Blog
 layout: home
 ---
 
-This is a *bare-minimum* template to create a Jekyll site that uses the [Just the Docs] theme. You can easily set the created site to be published on [GitHub Pages] – the [README] file explains how to do that, along with other details.
+<header class="header-background">
+  <div class="header-content">
+    <h1>환영합니다! DevOps Engineer의 세계로</h1>
+    <p>개발을 사랑하는 DevOps Engineer, Kimkm의 블로그에 오신 것을 환영합니다.</p>
+  </div>
+</header>
 
-If [Jekyll] is installed on your computer, you can also build and preview the created site *locally*. This lets you test changes before committing them, and avoids waiting for GitHub Pages.[^1] And you will be able to deploy your local build to a different platform than GitHub Pages.
+## 소개
+안녕하세요. 클라우드 인프라와 자동화를 사랑하는 DevOps 엔지니어입니다. 혁신적인 기술과 문화를 통해 개발의 미래를 만들어 가고 있습니다.
 
-More specifically, the created site:
+## 전문 기술
+- **클라우드 & 인프라**: AWS, Azure, GCP
+- **컨테이너 & 오케스트레이션**: Docker, Kubernetes
+- **CI/CD**: Jenkins, GitLab CI, GitHub Actions
+- **개발**: Python, Go, JavaScript
 
-- uses a gem-based approach, i.e. uses a `Gemfile` and loads the `just-the-docs` gem
-- uses the [GitHub Pages / Actions workflow] to build and publish the site on GitHub Pages
+<!-- 나머지 콘텐츠는 이곳에 추가... -->
 
-Other than that, you're free to customize sites that you create with this template, however you like. You can easily change the versions of `just-the-docs` and Jekyll it uses, as well as adding further plugins.
-
-[Browse our documentation][Just the Docs] to learn more about how to use this theme.
-
-To get started with creating a site, simply:
-
-1. click "[use this template]" to create a GitHub repository
-2. go to Settings > Pages > Build and deployment > Source, and select GitHub Actions
-
-If you want to maintain your docs in the `docs` directory of an existing project repo, see [Hosting your docs from an existing project repo](https://github.com/just-the-docs/just-the-docs-template/blob/main/README.md#hosting-your-docs-from-an-existing-project-repo) in the template README.
-
-----
-
-[^1]: [It can take up to 10 minutes for changes to your site to publish after you push the changes to GitHub](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll#creating-your-site).
-
-[Just the Docs]: https://just-the-docs.github.io/just-the-docs/
-[GitHub Pages]: https://docs.github.com/en/pages
-[README]: https://github.com/just-the-docs/just-the-docs-template/blob/main/README.md
-[Jekyll]: https://jekyllrb.com
-[GitHub Pages / Actions workflow]: https://github.blog/changelog/2022-07-27-github-pages-custom-github-actions-workflows-beta/
-[use this template]: https://github.com/just-the-docs/just-the-docs-template/generate
+<footer>
+  <!-- 푸터 내용 -->
+</footer>
