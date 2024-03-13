@@ -1,9 +1,10 @@
 ---
 layout: default
-title: Java-Sample-Application
+title: Security6
 nav_order: 1
-parent: Jenkins
-grand_parent: CI/CD
+permalink: docs/01_languages/Java/Security6
+parent: Java
+grand_parent: Languages
 ---
 
 # Color Utilities
@@ -13,6 +14,6 @@ grand_parent: CI/CD
 {: .no_toc .text-delta }
 
 1. TOC
-{:toc}
+   {:toc}
 
 ---

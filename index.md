@@ -1,5 +1,5 @@
 ---
-title: Kimkm's Tech Blog
+title: Kimkm's 02_Tech Blog
 layout: home
 background: /assets/images/background.jpeg
 ---

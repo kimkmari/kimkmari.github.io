@@ -1,9 +1,10 @@
 ---
 layout: default
-title: CI/CD
-nav_order: 2
+title: Java
+nav_order: 1
 has_children: true
-permalink: docs/cicd
+permalink: docs/01_languages/Java
+parent: Languages
 ---
 
 # Color Utilities
