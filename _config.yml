@@ -7,7 +7,6 @@ url: https://blog.kimkm.com
 aux_links:
   Template Repository: https://github.com/just-the-docs/just-the-docs-template
 
-
 exclude:
   # from https://github.com/jekyll/jekyll/blob/master/lib/site_template/_config.yml:
   - .sass-cache/
@@ -40,7 +39,3 @@ plugins:
   - jekyll-seo-tag
   - jekyll-include-cache
   - jekyll-default-layout
-
-# Footer last edited timestamp
-last_edit_timestamp: true # show or hide edit time - page must have `last_modified_date` defined in the frontmatter
-last_edit_time_format: "%b %e %Y at %I:%M %p" # uses ruby's time format: https://ruby-doc.org/stdlib-2.7.0/libdoc/time/rdoc/Time.html
