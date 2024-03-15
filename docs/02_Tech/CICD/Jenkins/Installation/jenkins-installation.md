@@ -35,11 +35,17 @@ Docker에대한 기본지식이 필요합니다.
 
 사용한 레포지토리 주소 Jenkins-repo
 
-## EC2 인스턴스에 Jenkins Docker Image를 이용한 기본 배포
+---
 
-awscli 와 ec2 userdata를 이용하여 jenkins을 배포합니다.
+## 1. AWS EC2 Ubuntu OS 를 awscli를 통해 배포
 
-### awscli를 활용한 EC2 배포
+EC2 인스턴스 생성시, userdata 스크립트를 포함하여 인스턴스가 시작될 때 userdata에 정의된 command를 자동으로 수행하도록 합니다.
+
+awscli를 이용하여 배포합니다.
+
+보안그룹은 웹 서버에 필요한 80(HTTP) 포트와 443(HTTPS) 포트를 열어 외부의 접근을 허용합니다.
+
+### awscli를 활용한 EC2 Ubuntu OS 배포
 ```shell
 aws ec2 run-instances \
   --image-id ${UBUNTU_AMI_ID} \
@@ -54,15 +60,16 @@ aws ec2 run-instances \
   --user-data file://userdata.txt
 ``` 
 
-### userdata를 이용한 Jenkins 자동배포
+## 2. userdata를 이용한 Jenkins 배포 자동화
 
-**userdata.txt**
+### 2.1 userdata.txt
 ```shell
 #!/bin/bash
 
 # 사용자 변수 설정
 USER_NAME=ubuntu
 
+# Jenkins 디렉토리 생성 및 디렉토리 소유권변경
 mkdir -p /home/ubuntu/jenkins/jenkins_home
 chown -R ubuntu:ubuntu /home/ubuntu/jenkins
 
@@ -88,24 +95,23 @@ echo "Waiting for Jenkins to initialize..."
 sleep 30 # Jenkins 초기화를 기다림
 docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword > /home/ubuntu/jenkins/initialAdminPassword.txt
 chown ubuntu:ubuntu /home/ubuntu/jenkins/initialAdminPassword.txt
-
 ```
 
-**userdata 상세 설명**
+### 2.2 userdata.txt 상세 설명
 
-사용자 변수 지정
+**사용자 변수 지정**
 * Jenkins과 Docker를 실행할 사용자 이름을 설정합니다.
 ```bash
 USER_NAME=ubuntu
  ```
 
-Jenkins 디렉토리 생성 및 디렉토리 소유권변경
+**Jenkins 디렉토리 생성 및 디렉토리 소유권변경**
 ```bash
 mkdir -p /home/ubuntu/jenkins/jenkins_home
 chown -R ubuntu:ubuntu /home/ubuntu/jenkins
  ```
 
-Docker 설치
+**Docker 설치**
 * 공식 Docker 설치 스크립트를 다운받아 실행합니다. 설정한 USER_NAME에 해당하는 사용자를 Docker 그룹에 추가합니다.
 * 기본적으로 도커 실행 권한은 root에만 있습니다. ${USER_NAME} 사용자를 Docker 그룹에 추가하여, sudo 없이 Docker 명령을 실행할 수 있도록 합니다.
 
@@ -117,18 +123,18 @@ sh get-docker.sh
 usermod -aG docker ${USER_NAME}
  ```
 
-Docker 서비스를 시스템 부팅 시 자동으로 시작하게 설정합니다.
+**Docker 서비스 활성화 및 시작**
 ```bash
 systemctl enable docker
 systemctl start docker
 ```
 
-Jenkins를 Docker 컨테이너 실행
+**Jenkins Docker 컨테이너 실행**
   * -d 컨테이너 백그라운드 실행
-  * -p 8080:8080 젠킨슨은 기본적으로 8080 포트에서 웹 인터페이스를 제공합니다. 따라서 컨테이너의 포트를 호스트 포트에 연결하기 위해 동일한 포트를 붙여줘야 합니다.
+  * -p 8080:8080 젠킨슨은 기본적으로 8080 포트에서 웹 인터페이스를 제공합니다. 호스트 포트를 변경하여 외부에서 Jenkins 웹 인터페이스에 접근하는 포트를 변경할 수 있습니다.
   * -p 50000:50000 젠킨슨 에이전트가 실행되기 위한 포트도 컨테이너에 연결해 줍니다.
   * --name 컨테이너 이름을 지정합니다.
-  * -v 젠킨슨 컨테이너 볼륨을 마운트할 디렉토리 경로를 설정합니다.
+  * -v Jenkins 데이터를 호스트 서버에 마운트하기 위한 설정입니다. Jenkins 설정 및 빌드데이터가 컨테이너 재시작 후에도 유지됩니다.
 
 ```bash
 # Jenkins Docker 컨테이너 실행
@@ -138,7 +144,7 @@ docker run -d -p 8080:8080 -p 50000:50000 \
   jenkins/jenkins:lts
   ```
 
-Jenkins 초기 관리자 비밀번호 저장
+**Jenkins 초기 관리자 비밀번호 저장**
 * 컨테이너 내부에 있는 var/jenkins_home/secrets 디렉토리내에 있는 비밀번호를 확인합니다.
 * ![img-2.png](img-2.png)
 ```shell
@@ -148,16 +154,24 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword > /home/u
 chown ubuntu:ubuntu /home/ubuntu/jenkins/initialAdminPassword.txt
 ```
 
-### jenkins 접속하기
+## jenkins 접속하기
 
-* 서버에 접속한 후 Administrator password를 가져와야 함
-  ![img-1.png](img-1.png)
-* 컨테이너를 배포할 때 확인했던 비밀번호를 입력해줍니다.
+http://<호스트의 IP 주소 또는 도메인>:8080 에 접속합니다.
+
+서버에 접속한 후 Administrator password를 확인합니다. /home/ubuntu/jenkins/initialAdminPassword.txt 해당 경로에서 확인 가능합니다.
+
+![img-1.png](img-1.png)
+
+
+컨테이너를 배포할 때 확인했던 비밀번호를 입력해줍니다.
+
 ![img-3.png](img-3.png)
 
-* install suggested plugins를 클릭하고 젠킨슨을 설치해줍니다.
+install suggested plugins를 클릭하고 젠킨슨을 설치해줍니다.
+
 ![img-4.png](img-4.png)
-* 접속 성공
+
+접속 성공
 ![img-5.png](img-5.png)
 
 
