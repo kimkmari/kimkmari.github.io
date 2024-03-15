@@ -2,7 +2,7 @@
 layout: default
 title: Teams 배포 승인 메세지
 nav_order: 1
-permalink: docs/02_Tech/CICD/Jenkins
+permalink: docs/02_Tech/CICD/Jenkins/Notification
 parent: CICD
 grand_parent: Tech
 ---
@@ -102,9 +102,31 @@ Build status 설명
 * **Timeout** - TCP와 HTTP 연결에 대한 타임아웃을 밀리초 단위로 설정합니다. 기본값은 30000 ( 30초 ) 입니다. 젠킨슨이 알림을 전송하는 데 걸리는 최대 시간을 뜻합니다. 
 ![img-15.png](img-15.png)
 
-**Teams 에서 메세지 확인하기**
-1. 젠킨슨 파이프라인 파일을 만들어 줍니다.
-`dd`
+**젠킨슨 파이프라인 구성하여 테스트 해보기**
+1. Teams 젠킨슨 파이프라인 파일을 만들어 줍니다.
+```groovy
+node {
+    checkout scm
+    stage('Invoke Teams Approval') {
+        script {
+            def userInput = input(
+                    id: 'deploy-confirm',
+                    message: 'Deploy to production?',
+                    ok: 'Proceed',
+                    submitter: 'admin',
+                    parameters: []
+            )
+
+        }
+
+    }
+    stage("Test") {
+        // Jenkins 빌드 번호
+        echo "Jenkins Build Number => [${env.BUILD_NUMBER}]"
+        
+    }
+}
+```
 
 
 
