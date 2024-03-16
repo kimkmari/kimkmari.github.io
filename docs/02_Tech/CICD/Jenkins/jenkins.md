@@ -1,7 +1,7 @@
 ---
 layout: default
-title: Jenkins
-nav_order: 1
+title: 1.Jenkins
+nav_order: 0
 permalink: docs/02_Tech/CICD/Jenkins
 parent: CICD
 grand_parent: Tech
@@ -17,3 +17,5 @@ grand_parent: Tech
 {:toc}
 
 ---
+
+참고자료 : https://www.jenkins.io/blog/2021/05/20/configure-plugins-with-jcasc/

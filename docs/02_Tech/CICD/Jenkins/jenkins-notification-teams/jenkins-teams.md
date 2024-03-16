@@ -1,8 +1,8 @@
 ---
 layout: default
-title: Teams 배포 승인 메세지
-nav_order: 1
-permalink: docs/02_Tech/CICD/Jenkins/Notification
+title: 1-3 Teams 배포 승인 메세지
+nav_order: 3
+permalink: docs/02_Tech/CICD/Jenkins/jenkins-notification-teams
 parent: CICD
 grand_parent: Tech
 ---

@@ -1,13 +1,16 @@
 ---
 layout: default
-title: Jenkins VM에 설치하기
+title: 1-1. AWS EC2에서 Docker를 사용하여 Jenkins 배포하기
 nav_order: 1
-permalink: docs/02_Tech/CICD/Jenkins/Installation
+permalink: docs/02_Tech/CICD/Jenkins/jenkins-installation
 parent: CICD
 grand_parent: Tech
 ---
 
 # AWS EC2에서 Docker를 사용하여 Jenkins 배포하기
+
+AWS EC2 인스턴스에 Docker를 사용하여 Jenkins를 배포하는 방법을 공유합니다.
+
 {: .no_toc }
 ![img.png](img.png)
 
@@ -25,19 +28,19 @@ Jenkins를 AWS EC2 인스턴스에 설치하는 과정을 기록하기 위해 �
 
 ## 글 요약
 
+AWS EC2 인스턴스에 userdata를 이용하여 Docker로 Jenkins를 Ubuntu OS에 배포하는 방법을 공유합니다.
 AWS EC2 인스턴스 생성부터 Docker 이미지를 이용한 배포 프로세스까지 스크립트를 이용해 한번에 설치할 수 있도록 구성하였습니다.
 
 ## 시작하기 전
 
-Jenkins와 AWS에 대한 기본적인 사용 경험을 가진 DevOps 엔지니어를 대상으로 합니다. 
-AWS EC2 인스턴스 생성 및 설정에 대한 기본 지식이 필요합니다.
-Docker에대한 기본지식이 필요합니다.
+AWS, Docker, Jenkins에 대한 기본적인 이해가 있으신 분들을 위해 작성되었습니다. 
+AWS EC2 인스턴스 생성 및 설정, Docker에 대한 기본 지식이 필요합니다.
 
 사용한 레포지토리 주소 Jenkins-repo
 
 ---
 
-## 1. AWS EC2 Ubuntu OS 를 awscli를 통해 배포
+## 1. AWS EC2 Ubuntu OS를 awscli를 통해 배포
 
 EC2 인스턴스 생성시, userdata 스크립트를 포함하여 인스턴스가 시작될 때 userdata에 정의된 command를 자동으로 수행하도록 합니다.
 
@@ -63,6 +66,10 @@ aws ec2 run-instances \
 ## 2. userdata를 이용한 Jenkins 배포 자동화
 
 ### 2.1 userdata.txt
+
+아래 스크립트는 EC2 인스턴스 생성 시 실행되며 Jenkins을 설치하기 위한 환경을 구축합니다. 
+Jenkins 디렉토리 생성, Docker 설치 및 설정, Jenkins Docker 컨테이너 실행 등으로 구성되었습니다.
+
 ```shell
 #!/bin/bash
 
@@ -88,7 +95,7 @@ systemctl start docker
 docker run -d -p 80:8080 -p 50000:50000 \
   --name jenkins \
   -v /home/ubuntu/jenkins/jenkins_home:/var/jenkins_home \
-  jenkins/jenkins:lts
+  jenkins/jenkins:jdk17
 
 # Jenkins 초기 관리자 비밀번호 저장
 echo "Waiting for Jenkins to initialize..."
@@ -141,7 +148,7 @@ systemctl start docker
 docker run -d -p 8080:8080 -p 50000:50000 \
   --name jenkins \
   -v /home/ubuntu/jenkins/jenkins_home:/var/jenkins_home \
-  jenkins/jenkins:lts
+  jenkins/jenkins:jdk17
   ```
 
 **Jenkins 초기 관리자 비밀번호 저장**
@@ -175,4 +182,8 @@ install suggested plugins를 클릭하고 젠킨슨을 설치해줍니다.
 ![img-5.png](img-5.png)
 
 
+## FAQ
 
+Q: 설치된 젠킨슨에서 플러그인을 재대로 다운받지 못하면 어떻게 해야 하나요?
+
+A: 보안 그룹 설정에 플러그인을 다운받기위한 HTTP, HTTPS 포트가 열려 있는지 확인합니다.
