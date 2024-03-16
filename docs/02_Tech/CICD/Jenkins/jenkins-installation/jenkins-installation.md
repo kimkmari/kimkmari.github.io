@@ -36,6 +36,12 @@ AWS EC2 인스턴스 생성부터 Docker 이미지를 이용한 배포 프로세
 AWS, Docker, Jenkins에 대한 기본적인 이해가 있으신 분들을 위해 작성되었습니다. 
 AWS EC2 인스턴스 생성 및 설정, Docker에 대한 기본 지식이 필요합니다.
 
+Ubuntu version 22.04 LTS / 사용한 UBUNTU_AMI_ID =ami-09a7535106fbd42d5
+
+사용한 docker image - jenkins/jenkins:jdk17 
+
+젠킨슨 버전 - 2.449
+
 사용한 레포지토리 주소 Jenkins-repo
 
 ---
@@ -178,9 +184,55 @@ install suggested plugins를 클릭하고 젠킨슨을 설치해줍니다.
 
 ![img-4.png](img-4.png)
 
+* 이미 jenkins/jenkins:jdk17을 이용해서 젠킨슨을 설치했기 때문에
+**Oracle Java SE Development Kit Installer** 해당 플러그인은 삭제하여도 무방합니다.
+
 접속 성공
 ![img-5.png](img-5.png)
 
+## 별첨
+
+**설치된 플러그인에대한 간략한 설명**
+
+**Pipeline: REST API:** 파이프라인 상태, 결과 등을 조회할 수 있습니다.
+
+**Pipeline: Stage View:** 파이프라인의 각 스테이지를 시각적으로 표현해주는 UI를 제공합니다.
+
+**Oracle Java SE Development Kit Installer**: Oracle의 웹사이트에서 Java SE Development Kit(JDK)를 다운로드하여 설치할 수 있게 해주는 플러그인입니다.
+
+**Command Agent Launcher**: 지정된 명령어를 사용하여 에이전트를 실행할 수 있게 해주는 에이전트 관리 플러그인입니다.
+
+**SSH server**: Jenkins에 SSH 서버 기능을 추가하여, CLI 명령을 통해 Jenkins를 원격으로 조작할 수 있게 해주는 플러그인입니다.
+
+**Authentication Tokens API**: 자격증명을 인증 토큰으로 변환하는 API를 제공합니다. Jenkins에서 보다 안전한 인증 방법을 구현할 때 사용됩니다.
+
+**Docker Pipeline**: Jenkins 파이프라인에서 Docker 컨테이너를 빌드하고 사용할 수 있게 해주는 플러그인입니다.
+
+**Lockable Resources**: 복수의 작업이 동일한 외부 자원에 의존하는 복잡한 CI/CD 파이프라인을 구성할 때 유용합니다. 이 플러그인을 사용함으로써 자원 충돌을 방지하고, 빌드 프로세스의 안정성과 효율성을 높일 수 있습니다.
+
+**Role-based Authorization Strategy**: 사용자 권한을 역할 기반으로 관리할 수 있게 해주는 보안 플러그인입니다.
+
+**JSch dependency**: SSH 연결을 위한 Java 라이브러리인 JSch를 Jenkins 플러그인으로 제공합니다.
+
+**Maven Integration**: Maven 프로젝트와 Jenkins 사이의 통합을 제공합니다.
+
+**Docker Commons**: 다양한 Docker 관련 플러그인에서 사용할 수 있는 공통 기능을 제공합니다.
+
+**HTML Publisher**: 빌드 후 생성된 HTML 보고서를 Jenkins에서 직접 볼 수 있게 해주는 플러그인입니다.
+
+**Role-based Authorization Strategy**: 사용자와 그룹에 역할 기반의 접근 제어를 허용하는 보안 플러그인입니다.
+
+**Subversion**: Jenkins에서 Apache Subversion 지원을 추가합니다. SVNKit을 통해 Subversion 저장소와의 상호 작용을 가능하게 합니다.
+
+**Favorite**: 사용자가 특정 작업을 '즐겨찾기'로 설정할 수 있게 해주는 플러그인입니다.
+
+**Parameterized Trigger**: 한 빌드가 완료된 후 다양한 방법으로 새 빌드를 트리거할 수 있게 해주는 플러그인입니다. 새 빌드에 파라미터를 전달하는 것도 가능합니다.
+
+**Bitbucket Branch Source**: Bitbucket Cloud 및 Bitbucket Server를 사용하여 프로젝트의 소스로 활용할 수 있게 해주는 플러그인입니다.
+
+**Blue Ocean:** 이들 모두 Blue Ocean UI와 관련된 플러그인으로, Jenkins의 사용자 경험을 현대화하고, 파이프라인 관리 및 시각화를 향상시키기 위해 설계되었습니다.
+
+**DataTables.net API:** jQuery DataTables를 Jenkins 플러그인에 제공합니다. 이를 통해 HTML 테이블에 고급 기능을 쉽게 추가할 수 있습니다.
 
 ## FAQ
 
