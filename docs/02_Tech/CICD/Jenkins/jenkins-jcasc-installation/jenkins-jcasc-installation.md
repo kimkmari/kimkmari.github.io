@@ -247,11 +247,15 @@ EOF"
 * **사용자 관리**: securityRealm 설정을 통해 Jenkins 로그인에 필요한 사용자 계정을 생성합니다.
 
 
-* **jenkins.yaml 적용전** 
-![img-2.png](img-2.png)
+* **jenkins.yaml 적용전**
+  * 최초 플러그인을 실행시 현재 접속해 있는 admin 유저만 권한을 가지게 설정되어있습니다.
+![img-3.png](img-3.png)
 
 * **jenkins.yaml 적용 후**
-
+  * 새롭게 readonly 역할을 만들어 admin 유저가 아니더라도 로그인 된 인증된 유저가 젠킨슨 view 권한을 갖도록 
+  * admin 권한에 생성한 유저를 추가할 수 있습니다.
+  * readonly 역할에 anonymous 
+![img-2.png](img-2.png)
 
 ```bash
 su - ${USER_NAME} -c "cat > ~/jenkins/data/jenkins.yaml <<EOF
@@ -352,21 +356,99 @@ su - ${USER_NAME} -c "cd ~/jenkins/data; docker-compose up -d"
 
 http://<호스트의 IP 주소 또는 도메인>:8080 에 접속합니다.
 
-서버에 접속한 후 Administrator password를 확인합니다. /home/ubuntu/jenkins/initialAdminPassword.txt 해당 경로에서 확인 가능합니다.
+앞서 설치한 플러그인으로 새롭게 생겨난 아래 두 섹션을 확인할 수 있습니다.
 
 ![img-1.png](img-1.png)
 
 
-컨테이너를 배포할 때 확인했던 비밀번호를 입력해줍니다.
+## Advanced Jenkins Configuration as Code
 
-![img-3.png](img-3.png)
+### 1. 세분화된 Role-Based Access Control ( RBAC ) 설정
 
-install suggested plugins를 클릭하고 젠킨슨을 설치해줍니다.
-
-![img-4.png](img-4.png)
-
-접속 성공
+**Global roles**
 ![img-5.png](img-5.png)
+적용 범위: Jenkins 어플리케이션 전체에 대한 Role을 정의합니다. 예를 들어 "Administer" 권한을 가진 admin Role은 Jenkins 설정을 변경할 수 있습니다.
+
+**Item roles**
+![img-4.png](img-4.png)
+목적: 특정 Jenkins 항목(예: 작업, 뷰, 폴더)에 대한 접근 권한을 세분화하여 정의합니다.
+적용 범위: 특정 패턴이나 경로에 일치하는 항목에 대한 권한을 제어합니다. 이는 폴더 구조 내에서 미세한 접근 제어를 가능하게 하여, 특정 프로젝트 또는 팀의 작업에 대한 접근을 제한할 수 있습니다.
+예시: 'FolderA' 역할은 "A/." 패턴에 일치하는 모든 항목에 대한 특정 권한을 가지며, 'FolderB' 역할은 "B." 패턴에 일치하는 항목에 대해 다른 권한 세트를 가집니다.
+
+#### Agent roles
+
+Jenkins에서 "Manage Roles" 페이지는 역할 기반 접근 제어(Role-Based Access Control, RBAC)를 설정하는 중요한 부분입니다. 여기서 관리자는 세 가지 유형의 역할을 정의할 수 있습니다: "Global roles", "Item roles", 그리고 "Agent roles". 이 역할들은 Jenkins 내에서 다양한 자원과 작업에 대한 접근 권한을 세밀하게 제어할 수 있게 합니다. 각 역할 유형의 차이점을 이해하는 것은 권한 관리와 보안 정책을 효과적으로 적용하는 데 중요합니다.
+
+Global Roles
+목적: Jenkins 인스턴스 전체에 대한 권한을 정의합니다.
+적용 범위: Jenkins의 모든 부분에 걸쳐 일반적인 권한을 제공합니다. 예를 들어, "Administer" 권한을 가진 사용자는 Jenkins 설정을 변경할 수 있는 반면, "Read" 권한을 가진 사용자는 정보를 볼 수만 있습니다.
+예시: 'admin' 역할에는 시스템 전체를 관리할 수 있는 권한이 부여될 수 있으며, 'readonly' 역할에는 시스템 전체를 볼 수 있는 권한만 부여됩니다.
+Item Roles
+목적: 특정 Jenkins 항목(예: 작업, 뷰, 폴더)에 대한 접근 권한을 세분화하여 정의합니다.
+적용 범위: 특정 패턴이나 경로에 일치하는 항목에 대한 권한을 제어합니다. 이는 폴더 구조 내에서 미세한 접근 제어를 가능하게 하여, 특정 프로젝트 또는 팀의 작업에 대한 접근을 제한할 수 있습니다.
+예시: 'FolderA' 역할은 "A/." 패턴에 일치하는 모든 항목에 대한 특정 권한을 가지며, 'FolderB' 역할은 "B." 패턴에 일치하는 항목에 대해 다른 권한 세트를 가집니다.
+Agent Roles
+목적: Jenkins 에이전트에 대한 접근 권한을 정의합니다. Jenkins 에이전트는 빌드와 관련 작업을 실행하는 데 사용되는 시스템입니다.
+적용 범위: 특정 에이전트 또는 에이전트 그룹에 대한 접근 권한을 제어합니다. 이를 통해 어떤 사용자가 에이전트를 구성하거나 조작할 수 있는지 결정할 수 있습니다.
+예시: 'Agent1' 역할은 "agent1" 패턴에 일치하는 특정 에이전트에 대한 권한을 제어합니다.
+각 역할 유형은 Jenkins 내에서 특정 자원에 대한 접근과 관리를 세밀하게 조절할 수 있는 유연성을 제공합니다. 이를 통해 조직은 필요에 따라 보안 정책을 세분화하고 엄격하게 적용할 수 있습니다.
+
+```bash
+jenkins:
+  authorizationStrategy:
+    roleBased:
+      roles:
+        global:
+          - name: "admin"
+            permissions:
+              - "Overall/Administer"
+            entries:
+              - user: "admin"
+          - name: "readonly"
+            permissions:
+              - "Overall/Read"
+              - "Job/Read"
+            entries:
+              - user: "authenticated"
+        items:
+          - name: "FolderA"
+            pattern: "A/.*"
+            permissions:
+              - "Job/Configure"
+              - "Job/Build"
+              - "Job/Delete"
+            entries:
+              - user: "user1"
+              - user: "user2"
+          - name: "FolderB"
+            pattern: "B.*"
+            permissions:
+              - "Job/Configure"
+              - "Job/Build"
+            entries:
+              - user: "user2"
+        agents:
+          - name: "Agent1"
+            description: "Agent 1"
+            pattern: "agent1"
+            permissions:
+              - "Agent/Build"
+            entries:
+              - user: "user1"
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "1234"
+        - id: "user1"
+          password: ""
+        - id: "user_hashed"
+          # password is password
+          password: "#jbcrypt:$2a$10$3bnAsorIxhl9kTYvNHa2hOJQwPzwT4bv9Vs.9KdXkh9ySANjJKm5u"
+
+```
+
 
 
 ## FAQ
