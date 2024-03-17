@@ -360,7 +360,6 @@ http://<호스트의 IP 주소 또는 도메인>:8080 에 접속합니다.
 
 ![img-1.png](img-1.png)
 
-
 ## Advanced Jenkins Configuration as Code
 
 ### 1. 세분화된 Role-Based Access Control ( RBAC ) 설정

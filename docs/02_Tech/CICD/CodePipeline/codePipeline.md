@@ -1,8 +1,8 @@
 ---
 layout: default
-title: 1. Jenkins
-nav_order: 0
-permalink: docs/02_Tech/CICD/Jenkins
+title: 2. CodePipeline
+nav_order: 20
+permalink: docs/02_Tech/CICD/CodePipeline
 parent: CICD
 grand_parent: Tech
 ---
