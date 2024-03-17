@@ -80,10 +80,9 @@ aws ec2 run-instances \
 # 사용자 변수 설정
 USER_NAME=ubuntu
 
+# 사용자 디렉토리 생성 및 디렉토리 소유권변경
 mkdir -p /home/ubuntu/jenkins/jenkins_home
-mkdir -p /home/ubuntu/jenkins/data/init.groovy.d
-
-# 생성된 모든 디렉토리에 대한 권한 설정
+mkdir -p /home/ubuntu/jenkins/data
 chown -R ${USER_NAME}:${USER_NAME} /home/ubuntu/jenkins
 
 # Docker 설치
@@ -98,16 +97,20 @@ newgrp docker
 systemctl enable docker
 systemctl start docker
 
+# Docker Compose 설치
 apt list docker docker-compose
 apt install docker-compose -y
 
+
 cd ~/jenkins/data
 
+# Jenkins Plugin 설치
 su - ${USER_NAME} -c "cat > ~/jenkins/data/plugins.txt <<EOF
 configuration-as-code:1775.v810dc950b_514
 role-strategy:713.vb_3837801b_8cc
 EOF"
 
+## Jenkins Configuration as Code (JCasC) 정의
 su - ${USER_NAME} -c "cat > ~/jenkins/data/jenkins.yaml <<EOF
 jenkins:
   authorizationStrategy:
@@ -181,54 +184,169 @@ su - ${USER_NAME} -c "cd ~/jenkins/data; docker-compose up -d"
 USER_NAME=ubuntu
  ```
 
-**Jenkins 디렉토리 생성 및 디렉토리 소유권변경**
+**사용자 디렉토리 생성 및 디렉토리 소유권변경**
+* jenkins_home 디렉토리 : Jenkins 어플리케이션 중요 데이터 저장소입니다. 컨테이너 내부의 핵심 데이터를 외부에 저장하여 컨테이너 재시작 시 데이터 손실 없이 재 가동할 수 있도록 합니다.
+* data 디렉토리 : Jenkins 설치에 필요한 추가 파일을 보관합니다. 
+* 디렉토리 소유권 변경: 생성한 디렉토리와 하위 모든 파일의 소유권을 ${USER_NAME}로 설정합니다.
 ```bash
 mkdir -p /home/ubuntu/jenkins/jenkins_home
-chown -R ubuntu:ubuntu /home/ubuntu/jenkins
+mkdir -p /home/ubuntu/jenkins/data
+chown -R ${USER_NAME}:${USER_NAME} /home/ubuntu/jenkins
  ```
 
-**Docker 설치**
+**Docker 설치 및 시작**
 * 공식 Docker 설치 스크립트를 다운받아 실행합니다. 설정한 USER_NAME에 해당하는 사용자를 Docker 그룹에 추가합니다.
 * 기본적으로 도커 실행 권한은 root에만 있습니다. ${USER_NAME} 사용자를 Docker 그룹에 추가하여, sudo 없이 Docker 명령을 실행할 수 있도록 합니다.
-
+* systemctl을 사용하여 Docker 서비스를 시스템 부팅 시 자동으로 시작되도록 설정합니다.
 ```bash
+# Docker 설치
 echo "1. [docker program installation] start"
 apt-get update -y
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 usermod -aG docker ${USER_NAME}
- ```
+newgrp docker
 
-**Docker 서비스 활성화 및 시작**
-```bash
+# Docker 서비스 활성화 및 시작
 systemctl enable docker
 systemctl start docker
 ```
 
-**Jenkins Docker 컨테이너 실행**
-* -d 컨테이너 백그라운드 실행
-* -p 8080:8080 젠킨슨은 기본적으로 8080 포트에서 웹 인터페이스를 제공합니다. 호스트 포트를 변경하여 외부에서 Jenkins 웹 인터페이스에 접근하는 포트를 변경할 수 있습니다.
-* -p 50000:50000 젠킨슨 에이전트가 실행되기 위한 포트도 컨테이너에 연결해 줍니다.
-* --name 컨테이너 이름을 지정합니다.
-* -v Jenkins 데이터를 호스트 서버에 마운트하기 위한 설정입니다. Jenkins 설정 및 빌드데이터가 컨테이너 재시작 후에도 유지됩니다.
+**Docker Compose 설치**
+* docker-compse는 yml 파일에 Jenkins 설치 시 필요한 환경 변수와 볼륨 등 다양한 설정을 담음으로써, 
+간단한 명령으로 docker를 실행시킬 수 있도록 합니다.
+```bash
+apt list docker docker-compose
+apt install docker-compose -y
+```
+
+**Jenkins Plugin 설치**
+* configuration-as-code:1775.v810dc950b_514 : jenkins.yml 파일을 사용하여 Jenkins 구성을 코드 형태로 자동화하고 관리할 수 있게 해줍니다.
+* role-strategy:713.vb_3837801b_8cc: 사용자에게 역할 및 권한 부여를 통해 사용자의 접근 수준을 설정하여 Jenkins의 보안을 강화할 수 있습니다.
+
+
+* 설치 후 아래와 같은 항목이 새롭게 생겨나게 됩니다.
+![img-1.png](img-1.png)
 
 ```bash
-# Jenkins Docker 컨테이너 실행
-docker run -d -p 8080:8080 -p 50000:50000 \
-  --name jenkins \
-  -v /home/ubuntu/jenkins/jenkins_home:/var/jenkins_home \
-  jenkins/jenkins:jdk17
-  ```
+cd ~/jenkins/data
 
-**Jenkins 초기 관리자 비밀번호 저장**
-* 컨테이너 내부에 있는 var/jenkins_home/secrets 디렉토리내에 있는 비밀번호를 확인합니다.
-* ![img-2.png](img-2.png)
-```shell
-echo "Waiting for Jenkins to initialize..."
-sleep 30 # Jenkins 초기화를 기다림
-docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword > /home/ubuntu/jenkins/initialAdminPassword.txt
-chown ubuntu:ubuntu /home/ubuntu/jenkins/initialAdminPassword.txt
+su - ${USER_NAME} -c "cat > ~/jenkins/data/plugins.txt <<EOF
+configuration-as-code:1775.v810dc950b_514
+role-strategy:713.vb_3837801b_8cc
+EOF"
 ```
+
+**Jenkins Configuration as Code (JCasC) jenkins.yaml 파일 정의**
+
+설치된 플러그인을 활용하여, Jenkins의 구성을 jenkins.yaml 파일로 자동화합니다. 
+
+
+**설정내용**
+* **역할 기반 권한 부여**: admin 역할에는 Jenkins의 전반적인 관리 권한(Overall/Administer)을 부여하고, readonly 역할에는 읽기 권한(Overall/Read)만 부여합니다.
+* **사용자 관리**: securityRealm 설정을 통해 Jenkins 로그인에 필요한 사용자 계정을 생성합니다.
+
+
+* **jenkins.yaml 적용전** 
+![img-2.png](img-2.png)
+
+* **jenkins.yaml 적용 후**
+
+
+```bash
+su - ${USER_NAME} -c "cat > ~/jenkins/data/jenkins.yaml <<EOF
+jenkins:
+  authorizationStrategy:
+    roleBased:
+      roles:
+        global:
+          - name: "admin"
+            permissions:
+              - "Overall/Administer"
+            entries:
+              - user: "user1"
+              - user: "admin"
+          - name: "readonly"
+            permissions:
+              - "Overall/Read"
+            entries:
+              - group: "authenticated"
+              - user: "anonymous"
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "1234"
+        - id: "user1"
+          password: "1234"
+EOF"
+```
+
+
+**Docker File 생성**
+
+이 파일은 Jenkins 서버의 이미지를 생성하고, 앞서 정의한 플러그인을 설치하며, jenkins.yaml 파일을 Jenkins Configuration as Code 플러그인이 파일을 수행할 수 있는 위치에 복사하는 역할을 합니다.
+
+* 패키지 업데이트 및 업그레이드를 위해 root 사용자로 전환하여 이미지 내의 패키지를 최신 상태로 유지합니다.
+* USER jenkins 명령어를 통해, 플러그인 설치와 관련된 작업을 root 가 아닌 Jenkins 사용자로 전환하여 실행합니다.
+* jenkins-plugin-cli 를 통해 정의된 플러그인들을 설치합니다.
+* Jenkins 이 정의된 jenkins.yaml 구성파일을 로드할 수 있도록 구성합니다.
+
+```bash
+su - ${USER_NAME} -c "cat > ~/jenkins/data/Dockerfile <<EOF
+FROM jenkins/jenkins:jdk17
+USER root
+RUN apt-get update -y && apt-get upgrade -y
+USER jenkins
+COPY ./plugins.txt /usr/share/jenkins/plugins.txt
+RUN  jenkins-plugin-cli -f /usr/share/jenkins/plugins.txt
+COPY ./jenkins.yaml /usr/share/jenkins/jenkins.yaml
+EOF"
+```
+
+**Docker Compose 파일 생성 및 실행**
+
+* 컨테이너 빌드 및 설정: build: ~/jenkins/data: Dockerfile이 위치한 디렉토리 경로를 지정하여 Jenkins 이미지를 빌드합니다.
+
+* container_name: 생성될 컨테이너의 이름을 jenkins로 설정합니다.
+
+* user: 컨테이너 내에서 jenkins 유저로 프로세스를 실행합니다.
+
+* 환경 변수 설정:
+
+  * JAVA_OPTS: Jenkins 설치 마법사를 건너뛰고, 시간대를 설정합니다.
+  * CASC_JENKINS_CONFIG: JCasC 플러그인이 jenkins.yaml 파일을 찾을 경로를 지정합니다.
+  
+* restart: Docker 호스트가 재부팅되거나 컨테이너가 멈췄을 때 자동으로 컨테이너를 재시작하도록 설정합니다.
+* 포트 매핑: 호스트와 컨테이너 간의 포트를 매핑하여, 외부에서 Jenkins에 접근할 수 있도록 합니다. 
+* 볼륨 마운트: - /home/ubuntu/jenkins/jenkins_home:/var/jenkins_home 옵션은 호스트의 jenkins_home 디렉토리를 컨테이너의 /var/jenkins_home에 마운트하여, Jenkins 데이터를 영구적으로 보존합니다.
+
+```bash
+# Docker-compose 파일 생성
+su - ${USER_NAME} -c "cat > ~/jenkins/data/docker-compose.yml <<EOF
+version: '3.9'
+services:
+  jenkins:
+    build: ~/jenkins/data
+    container_name: jenkins
+    user: jenkins
+    environment:
+      JAVA_OPTS:
+        -Djenkins.install.runSetupWizard=false
+        -Dorg.apache.commons.jelly.tags.fmt.timeZone=Asia/Seoul
+      CASC_JENKINS_CONFIG: /usr/share/jenkins/jenkins.yaml
+    restart: always
+    ports:
+      - \"80:8080\"
+      - \"50000:50000\"
+    volumes:
+      - /home/ubuntu/jenkins/jenkins_home:/var/jenkins_home
+EOF"
+
+su - ${USER_NAME} -c "cd ~/jenkins/data; docker-compose up -d"
+```
+
 
 ## jenkins 접속하기
 
