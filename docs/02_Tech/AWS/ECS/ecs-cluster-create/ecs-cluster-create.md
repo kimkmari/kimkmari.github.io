@@ -10,7 +10,7 @@ grand_parent: Tech
 # ECS CLuster 구축 하기
 {: .no_toc }
 
-## Table of contents
+## 목차
 {: .no_toc .text-delta }
 
 1. TOC
@@ -21,7 +21,9 @@ grand_parent: Tech
 # ECS
 
 Amazon Elastic Container Service(Amazon ECS)는 완전관리형 컨테이너 오케스트레이션 서비스입니다.
+
 다른 AWS 서비스와 통합을 통해 ECS에 새로운 기능을 추가할 수도 있습니다.
+
 ECS는 EC2 뿐만아니라 AWS Fargate를 지원하여 컨테이너에 적합한 서버리스 컴퓨팅 환경을 제공합니다.
 
 {: .no_toc }
@@ -36,7 +38,7 @@ ECS는 EC2 뿐만아니라 AWS Fargate를 지원하여 컨테이너에 적합한
 
 ## 글을 쓴 배경
 
-ECS 서비스를 이용해 JAVA application을 배포하는 방법을 공유합니다.
+ECS 서비스를 이용해 sample application 도커 이미지를 배포하는 방법을 공유합니다.
 
 ## 글 요약
 
@@ -49,12 +51,14 @@ ECS 서비스를 이용해 JAVA application을 배포하는 방법을 공유합�
 
 ## 1. AWS ECR 레포지토리 생성
 
-Amazon Elastic Container Registry(ECR)를 Amazon ECS와 통합하여 Amazon ECS에서 실행되는 애플리케이션에 대한 컨테이너 이미지를 저장, 실행 및 관리할 수 있습니다. 
+Amazon Elastic Container Registry(ECR)에 Amazon ECS에서 실행되는 애플리케이션 이미지를 저장, 실행 및 관리할 수 있습니다. 
+
 ECS TaskDefinition에 Amazon ECR 리포지토리를 지정하기만 하면 Amazon ECS에서 애플리케이션에 적합한 이미지를 가져옵니다.
 
 ![img-1.png](img-1.png)
 
 생성 후 배포할 이미지를 업로드 해줍니다. 저는 nginx container 이미지를 업로드해주었습니다.
+
 ![img-2.png](img-2.png)
 
 참고자료 : [Amazon ECR](https://catalog.us-east-1.prod.workshops.aws/workshops/8c9036a7-7564-434c-b558-3588754e21f5/ko-KR/03-console/03-ecr)
@@ -62,11 +66,8 @@ ECS TaskDefinition에 Amazon ECR 리포지토리를 지정하기만 하면 Amazo
 ## 2. AWS ECS Cluster 생성
 
 ### 2.1 ECS 배포 방식 선정
-## 2. AWS ECS Cluster 생성
 
-### 2.1 ECS 배포 방식 선정
-
-ECS는 다음 두 가지 배포 방식을 제공합니다
+ECS는 다음 두 가지 배포 방식을 제공합니다. 본 블로그에서는 EC2 방식을 선택하여 ECS 서비스를 배포합니다.
 
 | 구분 | EC2 | Fargate |
 |------|-----|---------|
@@ -77,15 +78,13 @@ ECS는 다음 두 가지 배포 방식을 제공합니다
 | **비용** | - 인스턴스 비용 기준 <br> - 예약 인스턴스로 비용 절감 가능 | - 사용량(CPU/MEM) 기준 청구 <br> - 일반적으로 EC2 대비 비용 높음 |
 | **선택 포인트** | - 세밀한 컨트롤 및 규정 준수 요구 사항이 있는 경우 <br> - 장기적 비용 최적화 원하는 경우 | - 인프라 관리 부담 없이 개발에 집중하고자 하는 경우 <br> - 빠른 배포 및 자동 스케일링이 중요한 경우 |
 
-본 블로그에서는 EC2 방식을 선택하여 ECS 서비스를 배포합니다.
-
 ### 2.2 ECS 클러스터 생성
 
 #### 2.3.1 vpc 네트워크 인프라 구축
 
 본 블로그에서는 AWS에서 제공하는 default VPC를 사용합니다.
 
-[workshop에서 제공하는 cloudformation](https://catalog.us-east-1.prod.workshops.aws/workshops/8c9036a7-7564-434c-b558-3588754e21f5/ko-KR/02-setup/02-createaccount/01-stackdeploy)을 사용하거나, 사용자 정의 VPC를 구성할 수 있습니다.
+혹은 [workshop에서 제공하는 cloudformation](https://catalog.us-east-1.prod.workshops.aws/workshops/8c9036a7-7564-434c-b558-3588754e21f5/ko-KR/02-setup/02-createaccount/01-stackdeploy)을 사용하거나, 사용자 정의 VPC를 구성할 수 있습니다.
 
 #### 2.3.2 보안 그룹 설정
 
@@ -154,7 +153,7 @@ EC2 인스턴스 역할: 앞서 생성한 EC2용 IAM 역할을 지정합니다.
 
 Subnet과 VPC 선택: 인스턴스가 위치할 네트워크를 지정합니다.
 
-보안 그룹 지정: EC2 인스턴스용 보안 그룹을 선택합니다.
+보안 그룹 지정: EC2 인스턴스용 보안 그룹을 선택합니다. 앞서 생성한 보안그룹을 선택해 줍니다.
 
 ![img-7.png](img-7.png)
 
