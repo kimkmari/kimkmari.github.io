@@ -51,13 +51,13 @@ ECS 서비스를 이용해 sample application 도커 이미지를 배포하는 �
 
 ## 1. AWS ECR 레포지토리 생성
 
-Amazon Elastic Container Registry(ECR)에 Amazon ECS에서 실행되는 애플리케이션 이미지를 저장, 실행 및 관리할 수 있습니다. 
+Amazon Elastic Container Registry(ECR)에 ECS에서 실행되는 애플리케이션 이미지를 저장 및 관리할 수 있습니다. 
 
-ECS TaskDefinition에 Amazon ECR 리포지토리를 지정하기만 하면 Amazon ECS에서 애플리케이션에 적합한 이미지를 가져옵니다.
+ECS TaskDefinition에 Amazon ECR 리포지토리를 지정하기만 하면 Amazon ECS에서 지정된 이미지를 가져와 배포합니다.
 
 ![img-1.png](img-1.png)
 
-생성 후 배포할 이미지를 업로드 해줍니다. 저는 nginx container 이미지를 업로드해주었습니다.
+우선, 배포할 이미지를 업로드 해줍니다. 저는 nginx container 이미지를 업로드해주었습니다.
 
 ![img-2.png](img-2.png)
 
@@ -93,6 +93,8 @@ ALB 보안 그룹: 80, 443 포트를 열어줍니다.
 EC2 인스턴스 보안 그룹: ALB로부터 오는 모든 트래픽을 허용합니다.
 
 #### 2.3.3 IAM 역할 만들기
+
+이미지를 배포할 EC2 에 부여할 IAM 역할을 생성합니다.
 
 엔터티 유형 선택: AWS 서비스 -> EC2
 
@@ -163,7 +165,7 @@ ECS 클러스터 생성 시 자동으로 생성된 Auto Scaling Group을 확인�
 
 ![img-8.png](img-8.png)
 
-Auto Scaling Group에 연결된 Launch Template을 수정하여 EC2 인스턴스의 용량이나 다른 설정을 컨트롤 할 수 있습니다.
+Auto Scaling Group에 연결된 시작 템플릿 (Launch Template ) 을 수정하여 EC2 인스턴스의 용량이나 다른 설정을 컨트롤 할 수 있습니다.
 
 ![img-9.png](img-9.png)
 
@@ -187,9 +189,34 @@ launch template을 수정했다면 시작 템플릿 편집을 클릭하여 버�
 
 #### 2.4.1 인프라 요구 사항
 
+##### 2.4.1.1 시작 유형
+* FARGATE
+* EC2
+
+ECS가 작업 또는 서비스를 시작하는 위치를 결정합니다.
+
+작업정의 - 시작 유형 요구 사항과 일치하지 않으면 
+
+작업 정의 매개변수는 시작 유형에 허용된 
+
+작업 정의에 지정된 시작 유형에 따라 Amazon ECS가 작업 또는 서비스를 시작하는 위치가 결정됩니다. 작업 정의 매개변수는 시작 유형에 허용된 값을 기준으로 검증됩니다.
+
+기본적으로 AWS Fargate가 설정되어 있습니다. Amazon EC2 인스턴스를 선택할 수도 있습니다.
+
+Amazon ECS는 서비스를 생성하거나 태스크를 실행할 때 지정된 인프라 유형에서 해당 태스크 정의를 사용할 수 없는 경우 오류를 반환합니다.
+
+이 필드는 requiresCompatibilities 태스크 정의 파라미터에 해당합니다.
+
 
 
 ![img-14.png](img-14.png)
+
+#### 2.4.2 인프라 요구 사항
+
+#### 2.4.3 인프라 요구 사항
+
+#### 2.4.1 인프라 요구 사항
+
 
 #### 컨테이너 - 1
 

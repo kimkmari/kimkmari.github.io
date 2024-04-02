@@ -43,9 +43,7 @@ Java 어플리케이션을 배포할 예정이기에 Java 개발 지식을 가�
 
 ## 1. ECS 클러스터 구축
 
-
-
-## 2. Pipeline 구축
+## 2. Jenkins Pipeline 구축
 
 ## 3. ECR 구축
 

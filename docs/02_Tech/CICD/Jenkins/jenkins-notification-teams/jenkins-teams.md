@@ -105,26 +105,36 @@ Build status 설명
 **젠킨슨 파이프라인 구성하여 테스트 해보기**
 1. Teams 젠킨슨 파이프라인 파일을 만들어 줍니다.
 ```groovy
-node {
-    checkout scm
     stage('Invoke Teams Approval') {
-        script {
-            def userInput = input(
-                    id: 'deploy-confirm',
-                    message: 'Deploy to production?',
-                    ok: 'Proceed',
-                    submitter: 'admin',
-                    parameters: []
-            )
+    script {
 
+        GIT_COMMIT_ID = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+        // Git 커밋 ID를 가져오는 스크립트
+        echo "Git Commit ID => [${GIT_COMMIT_ID}]"
+
+        wrap([$class: 'BuildUser']) {
+            def user = env.BUILD_USER_ID
+            step([$class                        : 'LambdaInvokeBuildStep',
+                  lambdaInvokeBuildStepVariables: [
+                          awsRegion             : "${AWS_REGION}",
+                          functionName          : "${LAMBDA_FUNCTION_NAME}",
+                          synchronous           : true,
+                          payload: "{ \"jobName\": \"${env.JOB_NAME}\", \"jenkinsUrl\": \"${env.BUILD_URL}\", \"buildNumber\": \"${env.BUILD_NUMBER}\", \"startTime\": \"${env.BUILD_TIMESTAMP}\", \"deployExecutor\": \"${user}\", \"gitRevision\": \"${GIT_COMMIT_ID}\", \"environment\": \"${ENV_TARGET}\", \"gitTagName\": \"${CONTAINER_IMAGE_TAG}\"}",
+                          useInstanceCredentials: true
+                  ]
+            ])
         }
 
+        def userInput = input(
+                id: 'deploy-confirm',
+                message: 'Deploy to production?',
+                ok: 'Proceed',
+                submitter: 'admin, brighten5855, hkim',
+                parameters: []
+        )
+
     }
-    stage("Test") {
-        // Jenkins 빌드 번호
-        echo "Jenkins Build Number => [${env.BUILD_NUMBER}]"
-        
-    }
+
 }
 ```
 
